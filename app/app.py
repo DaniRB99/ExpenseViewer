@@ -1,6 +1,6 @@
 from app.transactions import create_app
 
-#flask --app app.app run --debug
-#TODO: change port
+#LANZAR
+# flask --app app.app run --debug --port 8000
 if __name__ == "__main__":
     create_app()
