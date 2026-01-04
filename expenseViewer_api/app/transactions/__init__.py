@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_restful import Api
 from .models import transacs
 
@@ -9,6 +10,13 @@ def create_app():
     Api(app)
     app.register_blueprint(transacs)
     app.url_map.strict_slashes = False
+    
+    CORS(app, resources={
+        r"/api/v1/*": {
+            "origins": "http://localhost:5173"
+        }
+    })
+    
     # app.run(host="localhost", port=8000, debug=True)
     return app
 

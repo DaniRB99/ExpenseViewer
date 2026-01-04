@@ -1,0 +1,12 @@
+.balance-block{
+    display: flex;
+    margin: 10px;
+
+    h2.money{
+        color:darkblue
+    }
+
+    h2{
+        padding: 15px;
+    }
+}

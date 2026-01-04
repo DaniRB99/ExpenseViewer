@@ -1,0 +1,16 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+ul{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+body{
+  margin: 0;
+  padding: 0;
+  background-color:rgb(100, 107, 112);
+}

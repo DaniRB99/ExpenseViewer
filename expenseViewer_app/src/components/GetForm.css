@@ -1,0 +1,22 @@
+.form-input {
+    display: flex;
+    flex-direction: row;
+    justify-content: baseline;
+    align-items: left;
+    padding: 10px;
+
+    fieldset {
+        border: none;
+    }
+
+    button {
+        background-color: black;
+        color: white;
+        border-radius:10px ;
+    }
+
+    button:hover{
+        background-color:darkslategrey;
+        color:black
+    }
+}
