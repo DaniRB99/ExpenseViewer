@@ -1,0 +1,7 @@
+2026-01-12 22:41:35,190 default         test_config     line:24   INFO     Prueba de logger. Mensaje de info
+2026-01-12 22:41:35,190 default         test_config     line:25   DEBUG    Mensaje desde debug
+2026-01-12 22:44:01,169 default         test_config     line:23   INFO     Prueba de logger. Mensaje de info
+2026-01-12 22:44:01,169 default         test_config     line:24   DEBUG    Mensaje desde debug
+2026-01-12 22:44:01,174 default         test_config     line:25   INFO     C:\Users\Daniel\Desktop\Development_project\python\expenseViewer\expenseViewer_api\config\resources\config_logger.yaml
+2026-01-12 22:45:12,471 default         test_config     line:23   INFO     Prueba de logger. Mensaje de info
+2026-01-12 22:45:12,471 default         test_config     line:24   DEBUG    Mensaje desde debug

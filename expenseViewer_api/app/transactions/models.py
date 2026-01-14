@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, Blueprint
-from app.db import get_transac_por_concepto, get_balance
+from app.transactions.transactions import Transaction
 
 transacs = Blueprint("transacs_api_v1", 
                      "transacs_api_v1", 
@@ -22,8 +22,12 @@ def add():
 
 @transacs.route("/<concepto>", methods=["GET"])
 def getTransacs(concepto):
-    return jsonify(get_transac_por_concepto(concepto=concepto))
+    return jsonify(Transaction.get_transacs(concepto))
 
 @transacs.route("/balance", methods=["GET"])
 def getBalance():
-    return  jsonify(get_balance())
+    return jsonify(Transaction.balance())
+
+@transacs.route("/get_last_transacs", methods=["GET"])
+def getLastTransacs():
+    return jsonify(Transaction.get_transacs_last_30())

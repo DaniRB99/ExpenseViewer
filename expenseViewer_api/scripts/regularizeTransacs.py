@@ -2,79 +2,114 @@ from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 from bson.objectid import  ObjectId
 from bson.json_util import dumps
-from typing import TypedDict, NotRequired, re
+from typing import TypedDict, NotRequired
 from datetime import datetime, date
 from pytz import timezone, utc
 import locale
+import re
 
+class TransacNormalization:
+    class Transac(TypedDict):
+        origen_id:str
+        num_cuenta:str
+        # oficina:int
+        divisa:str
+        # fecha_operacion:datetime
+        fecha_valor:NotRequired[datetime]
+        fecha_transaccion:NotRequired[datetime]
+        importe:float
+        saldo:float
+        concepto_comun:str
+        concepto_propio:str
+        # ref_1:str
+        referencia:str
+        # concepto_1:NotRequired[str]
+        destinatario:str # concepto 1 o 9
+        emisor:str # concepto 1 o 9
+        descripcion:NotRequired[str] # concepto 5
+        descripcion_ext:NotRequired[str] #concepto 7
+        cod_oper_tarjeta:NotRequired[str] # concepto 9
+        # concepto_2:NotRequired[str]
+        # concepto_3:NotRequired[str]
+        # concepto_4:NotRequired[str]
+        # concepto_5:NotRequired[str]
+        # concepto_6:NotRequired[str]
+        # concepto_7:NotRequired[str]
+        # concepto_8:NotRequired[str]
+        # concepto_9:NotRequired[str]
+        # concepto_10:NotRequired[str]
+    
+    @classmethod
+    def normalize_str(cls, cadena:str):
+        #Trim espacios y caracteres de mierda
+        normalized:str = cadena.strip(' \t\n\r')
+        #Trim de espacios redundantes
+        normalized = re.sub(r"\s{2,}"," ",normalized)
+        #Puntos y comas por espacios
+        normalized = normalized.replace(";", " ")
+        return normalized
+    
+    @classmethod
+    def getLocalTime(cls,date_str:str)->datetime:
+        local_time:datetime = datetime(0,0,0,0,0,0)
+        try:
+            europeTZ = timezone("Europe/Madrid")
+            date_date = datetime.strptime(date_str.replace("-","/"),f"%d/%m/%Y")
+            local_time =  utc.localize(date_date).astimezone(europeTZ)
+        except Exception as err:
+            print(err.args[0])
+        return local_time
 
-class Transac(TypedDict):
-    origen_id:str
-    num_cuenta:str
-    oficina:int
-    divisa:str
-    # fecha_operacion:datetime
-    fecha_valor:datetime
-    fecha_transaccion:NotRequired[datetime]
-    importe:float
-    saldo:float
-    concepto_comun:str
-    concepto_propio:str
-    ref_1:str
-    ref_2:str
-    concepto_1:NotRequired[str]
-    concepto_2:NotRequired[str]
-    concepto_3:NotRequired[str]
-    concepto_4:NotRequired[str]
-    concepto_5:NotRequired[str]
-    concepto_6:NotRequired[str]
-    concepto_7:NotRequired[str]
-    concepto_8:NotRequired[str]
-    concepto_9:NotRequired[str]
-    concepto_10:NotRequired[str]
-
-def getLocalTime(date_str:str):
-    local_time = None
-    try:
-        europeTZ = timezone("Europe/Madrid")
-        date_date = datetime.strptime(date_str.replace("-","/"),f"%d/%m/%Y")
-        local_time =  utc.localize(date_date).astimezone(europeTZ)
-    except Exception as err:
-        print(err.args[0])
-    return local_time
-
-
-def getFechaTransaccion(concepto:str, default:str = None)->date:
-    fecha_date = None
-    try:
-        literal_str = "Fecha de operación: "
-        #14-12-2025
-        fecha = concepto[concepto.index(literal_str) + len(literal_str):concepto.index(literal_str) + len(literal_str)+10].strip()
-        fecha_date = fecha
-    except ValueError as err:
-        print(f"Fecha transacción: {err.args[0]}")
-        fecha_date = default
-    return getLocalTime(fecha_date)
-
-def getConcepto(concepto:str)->str:
-    concepto_norm:str = ""
-    try:
-        literal_str = "Fecha de operación: "
-        #14-12-2025
-        concepto_norm = concepto[concepto.index(literal_str) + len(literal_str)+11:].strip()
-    except ValueError:
-        concepto_norm = concepto
-    return concepto_norm
-
-def getImporteSaldo(positivo:str, negativo:str):
-    res = 0
-    try:
-        positivo_num = locale.atof(positivo) if positivo != "" else 0
-        negativo_num = -locale.atof(negativo) if negativo != "" else 0
-        res = positivo_num + negativo_num
-    except ValueError as err:
-        print(err.args[0])
-    return res
+    
+    @classmethod
+    def getFechaTransaccion(cls,concepto:str, default:str = "")->datetime:
+        fecha_date = None
+        try:
+            literal_str = "Fecha de operación: "
+            #14-12-2025
+            fecha = concepto[concepto.index(literal_str) + len(literal_str):concepto.index(literal_str) + len(literal_str)+10].strip()
+            fecha_date = fecha
+        except ValueError as err:
+            print(f"Fecha transacción: {err.args[0]}")
+            fecha_date = default
+        return cls.getLocalTime(fecha_date)
+    
+    @classmethod
+    def getConcepto(cls,concepto:str)->str:
+        concepto_norm:str = ""
+        try:
+            literal_str = "Fecha de operación: "
+            #14-12-2025
+            concepto_norm = concepto[concepto.index(literal_str) + len(literal_str)+11:].strip()
+        except ValueError:
+            concepto_norm = concepto
+        return concepto_norm
+    
+    @classmethod
+    def getImporteSaldo(cls,positivo:str, negativo:str):
+        res = 0
+        try:
+            positivo_num = locale.atof(positivo) if positivo != "" else 0
+            negativo_num = -locale.atof(negativo) if negativo != "" else 0
+            res = positivo_num + negativo_num
+        except ValueError as err:
+            print(err.args[0])
+        return res
+    
+    @classmethod
+    def getDestinatario(cls,conepto_1:str, concepto_9:str, concepto_propio:str):
+        return ""
+    
+    @classmethod
+    def getEmisor(cls,conepto_1:str, concepto_9:str, concepto_propio:str):
+        return ""
+    
+    @classmethod
+    def getCodTarjeta(cls,codigo:str, concepto_propio:str):
+        if concepto_propio == "040":
+            return cls.normalize_str(codigo)
+        else:
+            return ""
 
 if __name__ == "__main__":
     #leer transacciones
@@ -96,34 +131,41 @@ if __name__ == "__main__":
         ]})
     print("Lectura completada")
     
+    normalizer = TransacNormalization()
+    
     for transac in transacs_not_norm:
         try:
             print("\n --> Nueva transacción:")
-            new_transac = Transac(origen_id=str(transac.get("_id","")),
+            new_transac = normalizer.Transac(origen_id=str(transac.get("_id","")),
                                 num_cuenta=transac.get("\ufeffN\u00famero de cuenta"),
-                                oficina=transac.get("Oficina"),
+                                # oficina=transac.get("Oficina"),
                                 divisa=transac.get("Divisa"),
-                                fecha_valor=getLocalTime(transac.get("F. Valor")),
-                                fecha_transaccion=getFechaTransaccion(transac.get("Concepto complementario 1"),transac.get("F. Operaci\u00f3n")),
-                                importe=getImporteSaldo(transac.get("Ingreso (+)"),transac.get("Gasto (-)")),
-                                saldo=getImporteSaldo(transac.get("Saldo (+)"),transac.get("Saldo (-)")),
+                                fecha_valor=normalizer.getLocalTime(transac.get("F. Valor")),
+                                fecha_transaccion=normalizer.getFechaTransaccion(transac.get("Concepto complementario 1"),transac.get("F. Operaci\u00f3n")),
+                                importe=normalizer.getImporteSaldo(transac.get("Ingreso (+)"),transac.get("Gasto (-)")),
+                                saldo=normalizer.getImporteSaldo(transac.get("Saldo (+)"),transac.get("Saldo (-)")),
                                 concepto_comun=transac.get("Concepto com\u00fan"),
                                 concepto_propio=transac.get("Concepto propio"),
-                                ref_1=transac.get("Referencia 1"),
-                                ref_2=transac.get("Referencia 2").strip(),
-                                concepto_1=getConcepto(transac.get("Concepto complementario 1")),
-                                concepto_2=transac.get("Concepto complementario 2").strip(),
-                                concepto_3=transac.get("Concepto complementario 3").strip(),
-                                concepto_4=transac.get("Concepto complementario 4").strip(),
-                                concepto_5=transac.get("Concepto complementario 5").strip(),
-                                concepto_6=transac.get("Concepto complementario 6").strip(),
-                                concepto_7=transac.get("Concepto complementario 7").strip(),
-                                concepto_8=transac.get("Concepto complementario 8").strip(),
-                                concepto_9=transac.get("Concepto complementario 9").strip(),
-                                concepto_10=transac.get("Concepto complementario 10").strip(),
+                                # ref_1=transac.get("Referencia 1"),
+                                referencia=transac.get("Referencia 2").strip(),
+                                destinatario=normalizer.getDestinatario(transac.get("Concepto complementario 1"), transac.get("Concepto complementario 9"), transac.get("Concepto propio")), # concepto 1 o 9
+                                emisor=normalizer.getEmisor(transac.get("Concepto complementario 1"), transac.get("Concepto complementario 9"), transac.get("Concepto propio")), # concepto 1 o 9
+                                descripcion=transac.get("Concepto complementario 5"), # concepto 5
+                                descripcion_ext=transac.get("Concepto complementario 7"), #concepto 7
+                                cod_oper_tarjeta=normalizer.getCodTarjeta(transac.get("Concepto complementario 9"),transac.get("Concepto propio")) # concepto 9
+                                # concepto_1=getConcepto(transac.get("Concepto complementario 1")),
+                                # concepto_2=transac.get("Concepto complementario 2").strip(),
+                                # concepto_3=transac.get("Concepto complementario 3").strip(),
+                                # concepto_4=transac.get("Concepto complementario 4").strip(),
+                                # concepto_5=transac.get("Concepto complementario 5").strip(),
+                                # concepto_6=transac.get("Concepto complementario 6").strip(),
+                                # concepto_7=transac.get("Concepto complementario 7").strip(),
+                                # concepto_8=transac.get("Concepto complementario 8").strip(),
+                                # concepto_9=transac.get("Concepto complementario 9").strip(),
+                                # concepto_10=transac.get("Concepto complementario 10").strip(),
                                 )
             print(new_transac)
             transacs_norm.insert_one(new_transac)
         except DuplicateKeyError as err:
-            print(f"!!! ERROR Clave duplicada: {err.details.get("errmsg")}")
+            print(f"!!! ERROR Clave duplicada: {err.details.get("errmsg")}") # type: ignore
             break
