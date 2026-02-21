@@ -1,36 +1,24 @@
 .transac-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 10px
+    list-style: none;
+    /* display: grid; */
+    width: 60%;
 }
 
 .transac-card {
-    width: 600px;
-    height: 1%;
     background-color:rgb(137, 120, 146);
     color: white;
     padding: 10px;
-    border: 3px solid black;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
+    border-bottom: 3px solid black;
+    
+    display: grid;
+    grid-template-columns: repeat(auto-fill,10em);
+    /* flex-direction: row;
+    justify-content: end;
+    align-items: center; */
+    gap:20px;
 
     .text {
         margin: 0px;
-    }
-
-    .from {
-        color:brown
-    }
-
-    .to {
-        color:darkblue
-    }
-
-    .pokemon-img {
-        width: 100%;
     }
 
     .income-amount {
@@ -40,6 +28,10 @@
     .spent-amount {
         color: black
     }
+}
+
+.transac-card:hover{
+    background-color:rgb(69, 60, 73);
 }
 
 .pokemon-card:hover{
