@@ -1,9 +1,14 @@
+/* background: #392f2f; 
+background: #3a7563; 
+background: #59a985; 
+background: #e6d3a7;  */
+
 .balance-block{
     display: flex;
     margin: 10px;
 
     h2.money{
-        color:darkblue
+        color: #59a985
     }
 
     h2{

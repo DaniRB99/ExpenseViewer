@@ -48,11 +48,12 @@ class Transaction:
                  "amount": cls.__format_money(transac.get("importe", 0), transac.get("divisa","")) ,
                  "balance": transac.get("saldo", 0),
                  "reference": transac.get("referencia",""),
-                 "dest": transac.get("destinatario_1",""),
+                 "dest": transac.get("destinatario",""),
                  "issuer": transac.get("emisor", ""),
-                 "description": transac.get("desc_usuario",""),
-                 "concept": transac.get("desc_concepto_compuesto","")
+                 "description": transac.get("descripcion",""),
+                 "descripcion_ext": transac.get("descripcion_ext",""),
+                 "cod_oper_tarjeta": transac.get("cod_oper_tarjeta","")
                 }, get_transacs())
             )
-        pprint.pprint(transacs_form[0])
+        # pprint.pprint(transacs_form[0])
         return transacs_form

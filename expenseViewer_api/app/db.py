@@ -6,7 +6,7 @@ from pytz import timezone, utc
 import pprint
 
 db_client = MongoClient(host="localhost", port=27017).get_database(name="expenseTracker")
-TRANS_COLLECTION = "transactions_norm"
+TRANS_COLLECTION = "transactions"
 europeTZ = timezone("Europe/Madrid")
 
 def get_transac_por_concepto(concepto):
@@ -21,7 +21,7 @@ def get_balance():
 
 #new Date(new Date().setDate(new Date().getDate() - 30))
 #TODO: agregación con la descripción de los tipos. 
-def get_transacs(last_days:int = 60)-> list[dict]:
+def get_transacs(last_days:int = 120)-> list[dict]:
     pipeline = [
             {
                 "$match":
@@ -99,11 +99,12 @@ def get_transacs(last_days:int = 60)-> list[dict]:
                     "fecha_transaccion": 1,
                     "importe": 1,
                     "saldo": 1,
-                    "referencia": "$ref_2",
-                    "destinatario_1": "$concepto_1",
-                    "desc_usuario": "$concepto_5",
-                    "destinatario_2": "$concepto_9",
-                    "desc_concepto_compuesto": 1
+                    "referencia": 1,
+                    "destinatario": 1,
+                    "emisor": 1,
+                    "descripcion": 1,
+                    "descripcion_ext": 1,
+                    "cod_oper_tarjeta": 1
                 }
             }
             ]

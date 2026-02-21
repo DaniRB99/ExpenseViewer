@@ -8,16 +8,10 @@ function Balance() {
         const response = await fetch("http://localhost:8000/api/v1/balance");
         const data = await response.json();
         console.log(data)
-        let divisa_symb = "cacahuetes";
-        if(data.divisa == "EUR"){
-            divisa_symb = "€"
-        }
-
-        setBalance(data.saldo+" "+divisa_symb)
+        setBalance(data.money)
     }
 
     useEffect(() => {
-        // setBalance("3.000,00€")
         fetchBalance();
     }, [])
 

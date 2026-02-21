@@ -1,0 +1,49 @@
+.transac-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px
+}
+
+.transac-card {
+    width: 600px;
+    height: 1%;
+    background-color:rgb(137, 120, 146);
+    color: white;
+    padding: 10px;
+    border: 3px solid black;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+
+    .text {
+        margin: 0px;
+    }
+
+    .from {
+        color:brown
+    }
+
+    .to {
+        color:darkblue
+    }
+
+    .pokemon-img {
+        width: 100%;
+    }
+
+    .income-amount {
+        color: gold;
+    }
+
+    .spent-amount {
+        color: black
+    }
+}
+
+.pokemon-card:hover{
+        background-color:darkorange;
+        color: black;
+    }
+

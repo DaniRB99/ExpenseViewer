@@ -5,8 +5,8 @@
 
 header{
     display: grid;
-    color: rgb(56, 56, 56);
-    background-color: rgb(185, 152, 61);
+    color:   #3b025e;
+    background-color: #b4acb7;
 
     ul{
         display: flex;

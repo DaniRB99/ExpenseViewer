@@ -2,10 +2,11 @@ import { useState } from 'react'
 import './App.css'
 import PokemonList from './components/PokemonList'
 import { type Pokemon, defualtPokemon } from './types/Pokemon'
-import DetailsWrapper from './hoc/DetailsWrapper'
 import PokemonDetails from './components/PokemonDetails'
 import PokemonDetails2 from './components/PokemonDetails2'
-import Balance from './components/balance'
+import Balance from './components/Balance'
+import TransactionList from './components/TransactionList'
+import { TransactionProviderWrapper } from './context/TransactionContexts'
 
 function App() {
 	const [selectedPokemon, setSelectedPokemon] = useState<Pokemon>(defualtPokemon)
@@ -41,14 +42,11 @@ function App() {
 					</ul>
 				</header>
 				<Balance></Balance>
-				{/* {selectedPokemon.id != -1 && (
-					<DetailsWrapper render={getDetails1}></DetailsWrapper>
-				)}
-				{selectedPokemon2.id != -1 && (
-					<DetailsWrapper render={getDetails2}></DetailsWrapper>
-				)} */}
+
 				<h2 className='subtitle'>Transactions</h2>
-				<PokemonList selectPokemon={setSelectedPokemon} selectPokemon2={setSelectedPokemon2}></PokemonList>
+				<TransactionProviderWrapper>
+					<TransactionList></TransactionList>
+				</TransactionProviderWrapper>
 			</main>
 		</>
 	)

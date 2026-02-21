@@ -5,17 +5,24 @@ from bson.json_util import dumps
 from typing import TypedDict, NotRequired
 from datetime import datetime, date
 from pytz import timezone, utc
+from pathlib import Path
+import csv
 import locale
 import re
 
 class TransacNormalization:
+    concept_1_dest:list[str] = ["040","038","001","005","044","036"] 
+    concept_9_dest:list[str] = ["002","041","067"]
+    default_dest:str = "concepto_1"
+    default_emi:str = "concepto_9"
+    
     class Transac(TypedDict):
         origen_id:str
         num_cuenta:str
         # oficina:int
         divisa:str
         # fecha_operacion:datetime
-        fecha_valor:NotRequired[datetime]
+        # fecha_valor:NotRequired[datetime]
         fecha_transaccion:NotRequired[datetime]
         importe:float
         saldo:float
@@ -51,7 +58,7 @@ class TransacNormalization:
     
     @classmethod
     def getLocalTime(cls,date_str:str)->datetime:
-        local_time:datetime = datetime(0,0,0,0,0,0)
+        local_time:datetime = datetime.now()
         try:
             europeTZ = timezone("Europe/Madrid")
             date_date = datetime.strptime(date_str.replace("-","/"),f"%d/%m/%Y")
@@ -97,12 +104,26 @@ class TransacNormalization:
         return res
     
     @classmethod
-    def getDestinatario(cls,conepto_1:str, concepto_9:str, concepto_propio:str):
-        return ""
+    def getDestinatario(cls,concepto_1:str, concepto_9:str, concepto_propio:str)->str:
+        dest:str = ""
+        if concepto_propio in cls.concept_1_dest:
+            dest = concepto_1
+        elif concepto_propio in cls.concept_9_dest:
+            dest = concepto_9
+        else:
+            dest = concepto_1 if cls.default_dest == "concepto_1" else concepto_9
+        return cls.normalize_str(dest)
     
     @classmethod
-    def getEmisor(cls,conepto_1:str, concepto_9:str, concepto_propio:str):
-        return ""
+    def getEmisor(cls,concepto_1:str, concepto_9:str, concepto_propio:str):
+        emisor:str = ""
+        if concepto_propio in cls.concept_1_dest:
+            emisor= concepto_9
+        elif concepto_propio in cls.concept_9_dest:
+            emisor=concepto_1
+        else:
+            emisor=concepto_9 if cls.default_emi == "concepto_9" else concepto_1
+        return cls.normalize_str(emisor)
     
     @classmethod
     def getCodTarjeta(cls,codigo:str, concepto_propio:str):
@@ -111,21 +132,41 @@ class TransacNormalization:
         else:
             return ""
 
+def cargaExcel(csvPath:Path):
+    movs:list = []
+    with open(csvPath, mode ='r',encoding='UTF-8') as file:    
+        movs = list(csv.DictReader(file, delimiter=","))
+        
+    print(f"Number of transactions: {len(movs)}")
+    return movs
+    
+
 if __name__ == "__main__":
-    #leer transacciones
     locale.setlocale(locale.LC_ALL,'')
+    
+    #leer transacciones
+    transacs = cargaExcel(Path.home() / "Documents" / "ExpenseViewer_transactions" / "transacs_fist_load.csv")
+    
+    #importar
     client = MongoClient(host="localhost", port=27017)
     db = client.get_database(name="expenseTracker")
-    transacs = db.get_collection(name="transactions")
-    transacs_norm = db.get_collection(name="transactions_norm")
-    
-    print(f"Conectado a {client.address}/{db.name} leyendo {transacs.name}")
+    migration_collection = db.create_collection(f"transacs_caixabank_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+    # collection = db.get_collection(name="transactions")
+    print(f"Cargando transacciones en {client.address}")
+    result = migration_collection.insert_many(transacs)
+    print(f"Carga completada: {len(result.inserted_ids)}")
+
+    # transacs = db.get_collection(name="transactions")
+    transacs_norm = db.get_collection(name="transactions")
+    deleted= transacs_norm.delete_many(filter={})
+    print(f"Tabla principal reseteada. Deleted count: {deleted.deleted_count}")
+    print(f"Conectado a {client.address}/{db.name} leyendo {migration_collection.name}")
     
     id_normalized = list(map(lambda transac: ObjectId(transac.get("origen_id")), 
                         transacs_norm.find(filter = {}, projection={"origen_id":1, "_id":0})))
     
     print(id_normalized)
-    transacs_not_norm = transacs.find(filter={"$and":[
+    transacs_not_norm = migration_collection.find(filter={"$and":[
         {"_id":{"$not":{"$in":id_normalized}}},
         # {"_id":{"$eq":ObjectId("694fa42c9ca3235ae089983e")}}
         ]})
@@ -133,37 +174,34 @@ if __name__ == "__main__":
     
     normalizer = TransacNormalization()
     
-    for transac in transacs_not_norm:
+    for transac in migration_collection.find(filter={}):
         try:
+            comple_9 = transac.get("Concepto complementario 9")
+            comple_1 = normalizer.getConcepto(transac.get("Concepto complementario 1"))
+            concepto_propio = transac.get("Concepto propio")
+            fecha_transac = normalizer.getFechaTransaccion(transac.get("Concepto complementario 1"),transac.get("F. Operaci\u00f3n"))
+            
             print("\n --> Nueva transacción:")
             new_transac = normalizer.Transac(origen_id=str(transac.get("_id","")),
                                 num_cuenta=transac.get("\ufeffN\u00famero de cuenta"),
                                 # oficina=transac.get("Oficina"),
                                 divisa=transac.get("Divisa"),
-                                fecha_valor=normalizer.getLocalTime(transac.get("F. Valor")),
-                                fecha_transaccion=normalizer.getFechaTransaccion(transac.get("Concepto complementario 1"),transac.get("F. Operaci\u00f3n")),
+                                # fecha_valor=normalizer.getLocalTime(transac.get("F. Valor")),
+                                fecha_transaccion=fecha_transac,
                                 importe=normalizer.getImporteSaldo(transac.get("Ingreso (+)"),transac.get("Gasto (-)")),
                                 saldo=normalizer.getImporteSaldo(transac.get("Saldo (+)"),transac.get("Saldo (-)")),
                                 concepto_comun=transac.get("Concepto com\u00fan"),
-                                concepto_propio=transac.get("Concepto propio"),
+                                concepto_propio=concepto_propio,
                                 # ref_1=transac.get("Referencia 1"),
-                                referencia=transac.get("Referencia 2").strip(),
-                                destinatario=normalizer.getDestinatario(transac.get("Concepto complementario 1"), transac.get("Concepto complementario 9"), transac.get("Concepto propio")), # concepto 1 o 9
-                                emisor=normalizer.getEmisor(transac.get("Concepto complementario 1"), transac.get("Concepto complementario 9"), transac.get("Concepto propio")), # concepto 1 o 9
-                                descripcion=transac.get("Concepto complementario 5"), # concepto 5
-                                descripcion_ext=transac.get("Concepto complementario 7"), #concepto 7
-                                cod_oper_tarjeta=normalizer.getCodTarjeta(transac.get("Concepto complementario 9"),transac.get("Concepto propio")) # concepto 9
-                                # concepto_1=getConcepto(transac.get("Concepto complementario 1")),
-                                # concepto_2=transac.get("Concepto complementario 2").strip(),
-                                # concepto_3=transac.get("Concepto complementario 3").strip(),
-                                # concepto_4=transac.get("Concepto complementario 4").strip(),
-                                # concepto_5=transac.get("Concepto complementario 5").strip(),
-                                # concepto_6=transac.get("Concepto complementario 6").strip(),
-                                # concepto_7=transac.get("Concepto complementario 7").strip(),
-                                # concepto_8=transac.get("Concepto complementario 8").strip(),
-                                # concepto_9=transac.get("Concepto complementario 9").strip(),
-                                # concepto_10=transac.get("Concepto complementario 10").strip(),
+                                referencia=normalizer.normalize_str(transac.get("Referencia 2")),
+                                destinatario=normalizer.getDestinatario(comple_1, comple_9, concepto_propio), # concepto 1 o 9
+                                emisor=normalizer.getEmisor(comple_1, comple_9, concepto_propio), # concepto 1 o 9
+                                descripcion=normalizer.normalize_str(transac.get("Concepto complementario 5")),
+                                descripcion_ext=normalizer.normalize_str(transac.get("Concepto complementario 7")), #concepto 7
+                                cod_oper_tarjeta=normalizer.getCodTarjeta(comple_9,concepto_propio) # concepto 9
                                 )
+            
+            #TODO: EMISOR/DESTINATARIO VACIOS --> autocompletar usuario propietario cuenta
             print(new_transac)
             transacs_norm.insert_one(new_transac)
         except DuplicateKeyError as err:

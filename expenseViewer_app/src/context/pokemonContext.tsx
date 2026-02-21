@@ -11,16 +11,16 @@ const PokemonContext = createContext<IPokemonContext>({
     setPokemons: () => {}
 });
 
-interface props {
+interface Props {
     children:React.ReactNode
 }
 
-function PokemonProviderWrapper({children}:props) {
+function PokemonProviderWrapper(props:Props) {
     const [pokemons, setPokemons] = useState<PokeList>([defualtPokemon]);
 
     return (
         <PokemonContext.Provider value={{pokemons, setPokemons}}>
-            {children}
+            {props.children}
         </PokemonContext.Provider>
     )
 }

@@ -5,9 +5,9 @@ import App from './App.tsx'
 import { PokemonProviderWrapper } from './context/pokemonContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <PokemonProviderWrapper>
-      <App />
-    </PokemonProviderWrapper>
-  </StrictMode>,
+  // <StrictMode>
+  <PokemonProviderWrapper>
+    <App />
+  </PokemonProviderWrapper>
+  //</StrictMode>,
 )
