@@ -27,6 +27,8 @@ function TransactionList() {
     });
 
     return (<ul className="transac-list">
+        <h2 className='subtitle'>Transactions</h2>
+        
         {transactions_li}
     </ul>)
 }

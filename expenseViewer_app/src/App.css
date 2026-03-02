@@ -25,7 +25,51 @@ header{
     }
 }
 
+.mainPanel {
+    margin: 0.5em;
+    display: flex;
+    /* align-items:flex-start; */
+    justify-content:space-evenly;
+}
 
 .subtitle {
     margin: 10px
 }
+
+.add {
+    padding: 0.8em 1.6em;
+    border: none;
+    border-radius: 6px;
+    background-color: #b0c6f5;
+     color: white;
+     cursor: pointer;
+     transition: background 0.2s ease, transform 0.1s ease;
+}
+
+button:active {
+       transform: scale(0.98);
+}
+
+button:hover {
+  background-color: #1e4fd8;
+}
+
+/* 
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #2563eb;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background-color: #1e4fd8;
+}
+
+button:active {
+  transform: scale(0.98);
+} */

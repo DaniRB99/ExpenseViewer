@@ -1,7 +1,7 @@
 .transac-list {
     list-style: none;
     /* display: grid; */
-    width: 60%;
+    width: 50%;
 }
 
 .transac-card {
@@ -12,10 +12,9 @@
     
     display: grid;
     grid-template-columns: repeat(auto-fill,10em);
-    /* flex-direction: row;
-    justify-content: end;
-    align-items: center; */
     gap:20px;
+
+    transition: background 0.2s ease;
 
     .text {
         margin: 0px;

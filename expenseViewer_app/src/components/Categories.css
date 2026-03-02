@@ -1,0 +1,12 @@
+.category-list {
+    list-style: none;
+
+    li {
+        background-color: rgb(102, 116, 132);
+        color: white;
+        display: grid;
+        grid-template-columns: repeat(auto-fill,10em);
+        padding: 10px;
+        border-bottom: 3px solid black;
+    }
+}
