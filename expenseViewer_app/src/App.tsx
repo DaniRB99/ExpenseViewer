@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './App.css'
-import Categories from './components/categories'
+import Categories from './components/Categories'
 import { type Pokemon, defualtPokemon } from './types/Pokemon'
 import PokemonDetails from './components/PokemonDetails'
 import PokemonDetails2 from './components/PokemonDetails2'
@@ -41,10 +41,10 @@ function App() {
 						<li>Transactions</li>
 					</ul>
 				</header>
-				<Balance></Balance>
 
 				<TransactionProviderWrapper>
 					<div className='mainPanel'>
+						<Balance></Balance>
 						<TransactionList></TransactionList>
 						<Categories></Categories>
 					</div>

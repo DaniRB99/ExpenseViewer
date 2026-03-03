@@ -3,8 +3,9 @@ import { createContext, useEffect, useState } from "react";
 export interface Transaction {
     _id: string,
     account: string,
-    balance: string,
-    amount: string,
+    balance: number,
+    amount: number,
+    currency:string,
     transac_date: string,
     concept: string,
     reference: string,
@@ -16,8 +17,9 @@ export interface Transaction {
 const defaultTransaction1: Transaction = {
     _id: "-1",
     account: "2100 0000 00 0000000000",
-    balance: "1.005.000,00 €",
-    amount: "5.000,00 €",
+    balance: 1005000.00,
+    amount: 5000.00,
+    currency:"EUR",
     transac_date: "01/05/2024",
     concept: "ABONARES - ENTREGAS - INGRESOS (TRANSFERENCIA)",
     reference: "000000000000",
@@ -29,8 +31,9 @@ const defaultTransaction1: Transaction = {
 const defaultTransaction2: Transaction = {
     _id: "-2",
     account: "2100 0000 00 0000000000",
-    balance: "1.004.900,00 €",
-    amount: "- 100,00 €",
+    balance: 1004900.00,
+    amount: -100.00,
+    currency:"EUR",
     transac_date: "05/05/2024",
     concept: "ABONARES - ENTREGAS - INGRESOS (TRANSFERENCIA)",
     reference: "000000000000",
@@ -42,8 +45,9 @@ const defaultTransaction2: Transaction = {
 const defaultTransaction3: Transaction = {
     _id: "-3",
     account: "2100 0000 00 0000000000",
-    balance: "1.004.000,00 €",
-    amount: "- 900,00 €",
+    balance: 100400000,
+    amount: -90000,
+    currency:"EUR",
     transac_date: "10/05/2024",
     concept: "ABONARES - ENTREGAS - INGRESOS (TRANSFERENCIA)",
     reference: "000000000000",
@@ -56,14 +60,16 @@ export interface TransactionContextType {
     transactions: Transaction[],
     addTransac: (transac: Transaction) => void,
     updateTransac: (transac: Transaction) => void,
-    deleteTransac: (id: string) => Transaction | null
+    deleteTransac: (id: string) => Transaction | null,
+    toMoneyFormat: (amount:number, currency:string) => string
 }
 
 const defaultTransacContext = {
     transactions: [],
     addTransac: () => null,
     updateTransac: () => null,
-    deleteTransac: () => null
+    deleteTransac: () => null,
+    toMoneyFormat: () => ""
 }
 
 export const TransactionContext = createContext<TransactionContextType>(defaultTransacContext);
@@ -94,8 +100,16 @@ export function TransactionProviderWrapper(props: Props) {
     const updateTransac = (transac: Transaction) => null;
     const deleteTransac = (id: string) => null;
 
+    const toMoneyFormat = (amount: number, currency:string) => {
+        return new Intl.NumberFormat("es-ES", {
+            style:"currency",
+            currency: currency,
+            currencySign:"accounting"
+        }).format(amount)
+    } 
+
     return (
-        <TransactionContext.Provider value={{ transactions, addTransac, updateTransac, deleteTransac }}>
+        <TransactionContext.Provider value={{ transactions, addTransac, updateTransac, deleteTransac, toMoneyFormat}}>
             {props.children}
         </TransactionContext.Provider>
     )

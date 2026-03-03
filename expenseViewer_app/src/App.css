@@ -53,23 +53,3 @@ button:active {
 button:hover {
   background-color: #1e4fd8;
 }
-
-/* 
-button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  background-color: #2563eb;
-  color: white;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
-}
-
-button:hover {
-  background-color: #1e4fd8;
-}
-
-button:active {
-  transform: scale(0.98);
-} */

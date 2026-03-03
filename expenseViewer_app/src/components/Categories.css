@@ -1,5 +1,7 @@
 .category-list {
     list-style: none;
+    display: grid;
+    /* justify-items: center; */
 
     li {
         background-color: rgb(102, 116, 132);
@@ -9,4 +11,8 @@
         padding: 10px;
         border-bottom: 3px solid black;
     }
+}
+
+.sub-panel {
+    display:table;
 }

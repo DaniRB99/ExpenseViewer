@@ -30,8 +30,8 @@ class Transaction:
         except Exception:
             balance_dict= {"divisa": "EUR","saldo":0}
             
-        return {"money":cls.__format_money(balance_dict.get('saldo', ''),
-                                  balance_dict.get('divisa','DOL'))}
+        return {"money":balance_dict.get('saldo', ''), 
+                "currency":balance_dict.get('divisa','DOL')}
         
     @classmethod
     def get_transacs(cls, concepto:str):
@@ -45,7 +45,8 @@ class Transaction:
                  "_id":str(transac.get("_id", "")), 
                  "account": transac.get("num_cuenta", ""),
                  "transac_date": datetime.strftime(transac.get("fecha_transaccion", ""), f"%d/%m/%Y"),
-                 "amount": cls.__format_money(transac.get("importe", 0), transac.get("divisa","")) ,
+                 "amount": transac.get("importe", 0),
+                 "currency":transac.get("divisa","") ,
                  "balance": transac.get("saldo", 0),
                  "reference": transac.get("referencia",""),
                  "dest": transac.get("destinatario",""),
