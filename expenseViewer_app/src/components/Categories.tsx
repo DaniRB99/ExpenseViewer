@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type ChangeEventHandler, type FormEvent } from "react"
+import { useEffect, useState, type ChangeEvent, type ChangeEventHandler, type FormEvent } from "react"
 import "./Categories.css"
 import CategoryForm from "./CategoryForm";
 
@@ -9,22 +9,43 @@ import CategoryForm from "./CategoryForm";
 
 
 function Categories() {
-    const [toggleForm, setToggleForm] = useState<boolean>(true);
+    const [newCategory, setNewCategory] = useState<String>("");
+    const [categories, setCategories] = useState<String[]>([]);
+    const [showForm, setShowForm] = useState<boolean>(false);
 
-    const showForm = () => {
-        setToggleForm(!toggleForm)
+    const toggleForm = () => {
+        setShowForm(!showForm)
     }
 
-    const [newCategory, setNewCategory] = useState<String>("");
+    const categories_li = categories.map((category) => {
+        return (<li className="category-element">{category}</li>)
+    });
+
+    useEffect(() => {
+        const defualtCategories = [
+            "Necesarios",
+            "Comida",
+            "Restaurante",
+            "Caprichos",
+            "Almuerzos",
+            "Psicólogo"
+        ];
+        setCategories(defualtCategories);
+    }, [])
+
+
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("Buena categoría ahí " + newCategory);
-
         //TODO: llamada al back con el POST y generar nueva línea
         //TODO: los <li> tienen que ser una lista renderizada
+        
+        const newCategories = categories;
+        newCategories.push(newCategory);
+        setCategories(newCategories);
 
-        showForm()
+        toggleForm();
     }
 
     const handleNewCategory = (e: ChangeEvent<HTMLInputElement>) => {
@@ -37,16 +58,10 @@ function Categories() {
             <div className="sub-panel">
                 <ul className="category-list">
                     <h2>Categories</h2>
+                    {categories_li}
+                    {showForm && CategoryForm({ handleNewCategory, handleSubmit })}
 
-                    <li>Necesarios</li>
-                    <li>Comida</li>
-                    <li>Restaurante</li>
-                    <li>Caprichos</li>
-                    <li>Almuerzos</li>
-                    <li>Psicólogo</li>
-                    {toggleForm && CategoryForm({ handleNewCategory, handleSubmit })}
-
-                    <button className="add" onClick={showForm}>➕</button>
+                    <button className="add" onClick={toggleForm}>➕</button>
                 </ul>
             </div>
         </>

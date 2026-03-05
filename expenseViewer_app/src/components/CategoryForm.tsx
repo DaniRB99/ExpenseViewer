@@ -10,7 +10,7 @@ function CategoryForm({handleNewCategory, handleSubmit}:props) {
 
     return (
         <>
-            <li>
+            <li className='category-element'>
                 <form onSubmit={handleSubmit}>
                     <fieldset>
                         <input type="string" onChange={handleNewCategory}></input>

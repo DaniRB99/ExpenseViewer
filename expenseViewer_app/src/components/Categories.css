@@ -3,7 +3,9 @@
     display: grid;
     /* justify-items: center; */
 
-    li {
+}
+
+.category-element{
         background-color: rgb(102, 116, 132);
         color: white;
         display: grid;
@@ -11,8 +13,27 @@
         padding: 10px;
         border-bottom: 3px solid black;
     }
-}
 
 .sub-panel {
     display:table;
+}
+
+fieldset{
+    border: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+input{
+    display: flex;
+    flex-direction: row;
+    background-color: inherit;
+    border: none;
+    caret-color: white;
+    color:white;
+}
+
+input:focus{
+    outline:none;
+    /* box-shadow: 0 0 3px rgba(37, 99, 235, 0.5); */
 }
